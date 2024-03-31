@@ -26,6 +26,7 @@ enum AttrType
   CHARS,     ///< 字符串类型
   INTS,      ///< 整数类型(4字节)
   FLOATS,    ///< 浮点数类型(4字节)
+  DATES,     ///< 日期类型
   BOOLEANS,  ///< boolean类型，当前不是由parser解析出来的，是程序内部使用的
 };
 
@@ -78,6 +79,7 @@ public:
   float       get_float() const;
   std::string get_string() const;
   bool        get_boolean() const;
+  int         get_date() const;
 
 private:
   AttrType attr_type_ = UNDEFINED;
@@ -89,5 +91,10 @@ private:
     float float_value_;
     bool  bool_value_;
   } num_value_;
+  int date_value;
   std::string str_value_;
+
+  int get_date_int(char *data);//将YYYY-MM-DD转为int型存储
+  bool check_date(int y, int m, int d);//检查日期合法性
+  std::string date_to_str(int date);//将int转为YYYY-MM-DD字符串
 };

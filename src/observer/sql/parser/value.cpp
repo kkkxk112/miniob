@@ -18,11 +18,11 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include <sstream>
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "dates", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
-  if (type >= UNDEFINED && type <= FLOATS) {
+  if (type >= UNDEFINED && type <= DATES) {
     return ATTR_TYPE_NAME[type];
   }
   return "unknown";
@@ -63,6 +63,10 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_                = length;
     } break;
+    case DATES:{
+      date_value = get_date_int(data);
+      length_                = length;
+    }break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -148,6 +152,9 @@ std::string Value::to_string() const
     case CHARS: {
       os << str_value_;
     } break;
+    case DATES: {
+      os << date_to_str(date_value);
+    }
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
     } break;
@@ -173,6 +180,9 @@ int Value::compare(const Value &other) const
       } break;
       case BOOLEANS: {
         return common::compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
+      }
+      case DATES: {
+        return common::compare_int((void *)&this->date_value, (void *)&other.date_value);
       }
       default: {
         LOG_WARN("unsupported type: %d", this->attr_type_);
@@ -284,4 +294,31 @@ bool Value::get_boolean() const
     }
   }
   return false;
+}
+
+int Value::get_date_int(char *data){
+  int y,m,d;
+  sscanf(v, "%d-%d-%d", &y, &m, &d);
+  bool b = check_date(y,m,d);
+  if(!b) return -1;
+  int dv = y*10000+m*100+d;
+  return dv;
+}
+
+bool Value::check_date(int y, int m, int d)
+{
+    static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    bool leap = (y%400==0 || (y%100 && y%4==0));
+    return y > 0
+        && (m > 0)&&(m <= 12)
+        && (d > 0)&&(d <= ((m==2 && leap)?1:0) + mon[m]);
+}
+
+std::string Value::date_to_str(int date)
+{
+  std::ostringstream oss;
+  oss << date/10000 << '-';
+  oss << std::setw(2) << std::setfill('0') << date%10000/100 << '-';
+  oss << std::setw(2) << std::setfill('0') << date%100;
+  return oss.str();
 }

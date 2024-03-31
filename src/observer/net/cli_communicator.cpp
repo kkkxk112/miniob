@@ -181,5 +181,6 @@ RC CliCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
   RC rc = PlainCommunicator::write_result(event, need_disconnect);
 
   need_disconnect = false;
+  
   return rc;
 }

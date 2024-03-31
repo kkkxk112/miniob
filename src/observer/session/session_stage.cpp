@@ -65,7 +65,7 @@ void SessionStage::handle_request2(SessionEvent *event)
 
   Session::set_current_session(event->session());
   event->session()->set_current_request(event);
-  SQLStageEvent sql_event(event, sql);
+  SQLStageEvent sql_event(event, sql); //这个似乎没什么用？
 }
 
 /**
