@@ -84,6 +84,8 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   RC rc = RC::SUCCESS;
 
   CompOp comp = condition.comp;
+  AttrType left_attr;
+  AttrType right_attr;
   if (comp < EQUAL_TO || comp >= NO_OP) {
     LOG_WARN("invalid compare operator : %d", comp);
     return RC::INVALID_ARGUMENT;
@@ -102,6 +104,7 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     FilterObj filter_obj;
     filter_obj.init_attr(Field(table, field));
     filter_unit->set_left(filter_obj);
+    left_attr = filter_unit->left().field.attr_type();
   } else {
     FilterObj filter_obj;
     filter_obj.init_value(condition.left_value);
@@ -111,6 +114,7 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
         return RC::INVALID_ARGUMENT;
     }
     filter_unit->set_left(filter_obj);
+    left_attr = filter_obj.value.attr_type();
   }
 
   if (condition.right_is_attr) {
@@ -124,6 +128,7 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
     FilterObj filter_obj;
     filter_obj.init_attr(Field(table, field));
     filter_unit->set_right(filter_obj);
+    right_attr = filter_unit->right().field.attr_type();
   } else {
     FilterObj filter_obj;
     filter_obj.init_value(condition.right_value);
@@ -133,10 +138,15 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
         return RC::INVALID_ARGUMENT;
     }
     filter_unit->set_right(filter_obj);
+    right_attr = filter_obj.value.attr_type();
   }
 
   filter_unit->set_comp(comp);
 
   // 检查两个类型是否能够比较
+  if(left_attr != right_attr){
+    LOG_WARN("dismatch type");
+    return RC::INVALID_ARGUMENT;
+  }
   return rc;
 }
