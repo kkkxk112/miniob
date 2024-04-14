@@ -310,7 +310,7 @@ int Value::get_date() const{
 
 int Value::get_date_int(char *data){
   int y,m,d;
-  sscanf(data,"%d-%d-%d", &y, &m, &d);
+  sscanf(data,"'%d-%d-%d'", &y, &m, &d);
   bool b = check_date(y,m,d);
   if(!b) return -1;
   int dv = y*10000+m*100+d;
