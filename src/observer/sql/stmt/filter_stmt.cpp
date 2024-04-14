@@ -105,6 +105,11 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   } else {
     FilterObj filter_obj;
     filter_obj.init_value(condition.left_value);
+    //检查数据合法性
+    if(filter_obj.value.attr_type() == DATES){
+      if(filter_obj.value.get_date() == -1)
+        return RC::INVALID_ARGUMENT;
+    }
     filter_unit->set_left(filter_obj);
   }
 
@@ -122,6 +127,11 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, std::unordered_m
   } else {
     FilterObj filter_obj;
     filter_obj.init_value(condition.right_value);
+     //检查数据合法性
+    if(filter_obj.value.attr_type() == DATES){
+      if(filter_obj.value.get_date() == -1)
+        return RC::INVALID_ARGUMENT;
+    }
     filter_unit->set_right(filter_obj);
   }
 

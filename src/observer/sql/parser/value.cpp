@@ -102,6 +102,11 @@ void Value::set_string(const char *s, int len /*= 0*/)
   }
   length_ = str_value_.length();
 }
+void Value::set_date(int value){
+  attr_type_ = DATES;
+  date_value = value;
+  length_ = sizeof(value);
+}
 
 void Value::set_value(const Value &value)
 {
@@ -118,6 +123,9 @@ void Value::set_value(const Value &value)
     case BOOLEANS: {
       set_boolean(value.get_boolean());
     } break;
+    case DATES: {
+      set_date(value.get_date());
+    }
     case UNDEFINED: {
       ASSERT(false, "got an invalid value type");
     } break;
@@ -153,8 +161,8 @@ std::string Value::to_string() const
       os << str_value_;
     } break;
     case DATES: {
-      os << date_to_str(date_value);
-    }
+      os << date_to_str(this->date_value);
+    }break;
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
     } break;
@@ -180,10 +188,10 @@ int Value::compare(const Value &other) const
       } break;
       case BOOLEANS: {
         return common::compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
-      }
+      } break;
       case DATES: {
         return common::compare_int((void *)&this->date_value, (void *)&other.date_value);
-      }
+      } break;
       default: {
         LOG_WARN("unsupported type: %d", this->attr_type_);
       }
@@ -296,9 +304,13 @@ bool Value::get_boolean() const
   return false;
 }
 
+int Value::get_date() const{
+  return date_value;
+}
+
 int Value::get_date_int(char *data){
   int y,m,d;
-  sscanf(v, "%d-%d-%d", &y, &m, &d);
+  sscanf(data,"%d-%d-%d", &y, &m, &d);
   bool b = check_date(y,m,d);
   if(!b) return -1;
   int dv = y*10000+m*100+d;
@@ -314,7 +326,7 @@ bool Value::check_date(int y, int m, int d)
         && (d > 0)&&(d <= ((m==2 && leap)?1:0) + mon[m]);
 }
 
-std::string Value::date_to_str(int date)
+std::string Value::date_to_str(int date) const
 {
   std::ostringstream oss;
   oss << date/10000 << '-';

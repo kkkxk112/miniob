@@ -60,6 +60,20 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
     }
   }
 
+  // 参数合法性检查
+  for (int i = 0; i < value_num; i++) {
+    const AttrType value_type = values[i].attr_type();
+    switch(value_type){
+      case DATES: {
+        if(values[i].get_date() == -1){
+          return RC::INVALID_ARGUMENT;
+        }
+      }break;
+      default: {
+      }
+    }
+  }
+
   // everything alright
   stmt = new InsertStmt(table, values, value_num);
   return RC::SUCCESS;

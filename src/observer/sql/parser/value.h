@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #pragma once
 
 #include <string>
+#include <iomanip>
 
 /**
  * @brief 属性的类型
@@ -55,6 +56,7 @@ public:
   void set_type(AttrType type) { this->attr_type_ = type; }
   void set_data(char *data, int length);
   void set_data(const char *data, int length) { this->set_data(const_cast<char *>(data), length); }
+  void set_date(int value);
   void set_int(int val);
   void set_float(float val);
   void set_boolean(bool val);
@@ -96,5 +98,5 @@ private:
 
   int get_date_int(char *data);//将YYYY-MM-DD转为int型存储
   bool check_date(int y, int m, int d);//检查日期合法性
-  std::string date_to_str(int date);//将int转为YYYY-MM-DD字符串
+  std::string date_to_str(int date) const;//将int转为YYYY-MM-DD字符串
 };

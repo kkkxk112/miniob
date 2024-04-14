@@ -77,7 +77,6 @@ RC insert_record_from_file(
           record_values[i].set_int(int_value);
         }
       }
-
       break;
       case FLOATS: {
         deserialize_stream.clear();
@@ -95,6 +94,21 @@ RC insert_record_from_file(
       case CHARS: {
         record_values[i].set_string(file_value.c_str());
       } break;
+      case DATES: {
+        deserialize_stream.clear();  // 清理stream的状态，防止多次解析出现异常
+        deserialize_stream.str(file_value);
+
+        int date_value;
+        deserialize_stream >> date_value;
+        if (!deserialize_stream || !deserialize_stream.eof()) {
+          errmsg << "need an date_integer but got '" << file_values[i] << "' (field index:" << i << ")";
+
+          rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        } else {
+          record_values[i].set_date(date_value);
+          //认为已经存入的date数据不会有非法数据
+        }
+      }
       default: {
         errmsg << "Unsupported field type to loading: " << field->type();
         rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
