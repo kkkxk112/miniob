@@ -386,7 +386,7 @@ value:
       @$ = @1;
     }
     |DATE_STR{
-      $$ = new Value(DATES,$1,4);
+      $$ = new Value($1,DATES);
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);

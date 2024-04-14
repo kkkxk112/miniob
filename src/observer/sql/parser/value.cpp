@@ -45,7 +45,14 @@ Value::Value(bool val) { set_boolean(val); }
 
 Value::Value(const char *s, int len /*= 0*/) { set_string(s, len); }
 
-void Value::set_data(char *data, int length)
+Value::Value(const char *s, AttrType attr_type){
+  if(attr_type == DATES){
+    set_date(get_date_int(s));
+  }
+}
+
+
+void Value::set_data(char *data, int length)  //读取文件中的内容转为数据类型
 {
   switch (attr_type_) {
     case CHARS: {
@@ -64,7 +71,7 @@ void Value::set_data(char *data, int length)
       length_                = length;
     } break;
     case DATES:{
-      date_value = get_date_int(data);
+      date_value = *(int *)data;
       length_                = length;
     }break;
     default: {
@@ -132,12 +139,15 @@ void Value::set_value(const Value &value)
   }
 }
 
-const char *Value::data() const
+const char *Value::data() const //这里目的是获取memcpy到record中时的地址
 {
   switch (attr_type_) {
     case CHARS: {
       return str_value_.c_str();
     } break;
+    case DATES: {
+      return (const char *)&date_value;
+    }
     default: {
       return (const char *)&num_value_;
     } break;
@@ -308,7 +318,7 @@ int Value::get_date() const{
   return date_value;
 }
 
-int Value::get_date_int(char *data){
+int Value::get_date_int(const char *data){
   int y,m,d;
   sscanf(data,"'%d-%d-%d'", &y, &m, &d);
   bool b = check_date(y,m,d);

@@ -49,6 +49,7 @@ public:
   explicit Value(float val);
   explicit Value(bool val);
   explicit Value(const char *s, int len = 0);
+  explicit Value(const char *s, AttrType attr_type);
 
   Value(const Value &other)            = default;
   Value &operator=(const Value &other) = default;
@@ -96,7 +97,7 @@ private:
   int date_value;
   std::string str_value_;
 
-  int get_date_int(char *data);//将YYYY-MM-DD转为int型存储
+  int get_date_int(const char *data);//将YYYY-MM-DD转为int型存储
   bool check_date(int y, int m, int d);//检查日期合法性
   std::string date_to_str(int date) const;//将int转为YYYY-MM-DD字符串
 };

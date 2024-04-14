@@ -1977,7 +1977,7 @@ yyreduce:
   case 49: /* value: DATE_STR  */
 #line 388 "yacc_sql.y"
              {
-      (yyval.value) = new Value(DATES,(yyvsp[0].string),4);
+      (yyval.value) = new Value((yyvsp[0].string),DATES);
     }
 #line 1983 "yacc_sql.cpp"
     break;
