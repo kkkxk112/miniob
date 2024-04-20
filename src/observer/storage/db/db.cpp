@@ -101,7 +101,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoS
   return RC::SUCCESS;
 }
 
-RC DB::drop_table(const char *table_name)
+RC Db::drop_table(const char *table_name)
 {
   RC rc = RC::SUCCESS;
   // check table_name

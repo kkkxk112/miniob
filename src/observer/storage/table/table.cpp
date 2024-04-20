@@ -132,13 +132,13 @@ RC Table::destroy(const char *path, const char *name)
   std::string  meta_file_path = table_meta_file(path,name);
   if(unlink(meta_file_path.c_str()) != 0) {
       LOG_ERROR("Failed to remove meta file=%s, errno=%d", meta_file_path.c_str(), errno);
-      return RC::GENERIC_ERROR;
+      return RC::IOERR_DELETE;
   }
   //数据文件
   std::string data_file_path = table_data_file(path,name);
   if(unlink(data_file_path.c_str()) != 0) {
       LOG_ERROR("Failed to remove data file=%s, errno=%d", data_file_path.c_str(), errno);
-      return RC::GENERIC_ERROR;
+      return RC::IOERR_DELETE;
   }
   //索引文件
   for(Index* index:indexes_){
@@ -146,7 +146,7 @@ RC Table::destroy(const char *path, const char *name)
     std::string index_file_path = table_index_file(path,name,index_name);
     if(unlink(index_file_path.c_str()) != 0) {
       LOG_ERROR("Failed to remove index file=%s, errno=%d", index_file_path.c_str(), errno);
-      return RC::GENERIC_ERROR;
+      return RC::IOERR_DELETE;
     }
   }
   //成功
