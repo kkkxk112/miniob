@@ -15,6 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 #include <limits.h>
 #include <string.h>
+#include <unistd.h>
+#include <cerrno>
 
 #include "common/defs.h"
 #include "common/lang/string.h"
@@ -120,6 +122,35 @@ RC Table::create(int32_t table_id, const char *path, const char *name, const cha
   base_dir_ = base_dir;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
+}
+
+RC Table::destroy(const char *path, const char *name)
+{
+  RC rc = sync();//刷新所有脏页
+  if(rc != RC::SUCCESS) return rc;
+  //元数据文件
+  std::string  meta_file_path = table_meta_file(path,name);
+  if(unlink(meta_file_path.c_str()) != 0) {
+      LOG_ERROR("Failed to remove meta file=%s, errno=%d", meta_file_path.c_str(), errno);
+      return RC::GENERIC_ERROR;
+  }
+  //数据文件
+  std::string data_file_path = table_data_file(path,name);
+  if(unlink(data_file_path.c_str()) != 0) {
+      LOG_ERROR("Failed to remove data file=%s, errno=%d", data_file_path.c_str(), errno);
+      return RC::GENERIC_ERROR;
+  }
+  //索引文件
+  for(Index* index:indexes_){
+    const char *index_name = index->index_meta().name();
+    std::string index_file_path = table_index_file(path,name,index_name);
+    if(unlink(index_file_path.c_str()) != 0) {
+      LOG_ERROR("Failed to remove index file=%s, errno=%d", index_file_path.c_str(), errno);
+      return RC::GENERIC_ERROR;
+    }
+  }
+  //成功
+  return RC::SUCCESS;
 }
 
 RC Table::open(const char *meta_file, const char *base_dir)
